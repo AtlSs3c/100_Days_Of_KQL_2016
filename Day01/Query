@@ -1,0 +1,19 @@
+DeviceProcessEvents
+| where Timestamp > ago(30d)
+| where (
+    ProcessVersionInfoOriginalFileName =~ "AutoIt3.exe"
+    or ProcessVersionInfoProductName has_cs "AutoIt"
+    or ProcessVersionInfoFileDescription has_cs "AutoIt"
+)
+| where FileName !~ "AutoIt3.exe"
+| where FolderPath matches regex @"(?i)\\Users\\|\\ProgramData\\|\\Windows\\Temp\\|\\Temp\\"
+| where not(FolderPath has @"\Program Files\AutoIt3\")
+| where not(FolderPath has @"\Program Files (x86)\AutoIt3\")
+| where not(
+    FileName has_cs "setup"
+    or FileName has_cs "install"
+    or ProcessVersionInfoFileDescription has_cs "Setup"
+)
+| project Timestamp, DeviceName, AccountName, FileName, FolderPath, ProcessCommandLine,
+          ProcessVersionInfoOriginalFileName, ProcessVersionInfoProductName, ProcessVersionInfoFileDescription,
+          InitiatingProcessFileName, InitiatingProcessFolderPath
