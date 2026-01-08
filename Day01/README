@@ -1,0 +1,26 @@
+# Detecting Renamed AutoIt3 Execution (HijackLoader-aligned)
+
+## Overview
+
+This hunt detects **renamed or relocated AutoIt3 interpreter executions** from **user-writable and temporary paths**, a common technique used by **HijackLoader and similar loaders**. 
+The detection is following Red Canary’s HijackLoader 
+The goal is to identify **AutoIt runtime abuse**, not legitimate AutoIt installations or installers.
+
+## Detection Logic Summary
+
+This hunt identifies:
+
+* Processes that **claim to be AutoIt** via embedded metadata
+* Executing under a **non-canonical name**
+* Running from **user-writable or temporary directories**
+* **Excluding legitimate AutoIt install paths and installers**
+
+---
+
+## Reference
+
+* Red Canary – HijackLoader
+  [https://redcanary.com/threat-detection-report/threats/hijackloader/](https://redcanary.com/threat-detection-report/threats/hijackloader/)
+
+* Red Canary – Profiling System32 / LOLBins
+  [https://redcanary.com/blog/threat-detection/system32-binaries/](https://redcanary.com/blog/threat-detection/system32-binaries/)
