@@ -29,6 +29,7 @@ The hunt focuses on a **distinct combination of command-line flags** that is hig
 
 # Query
 
+
 ```kql
 let CmdStrings = dynamic ([
     "--headless=new",
@@ -47,3 +48,21 @@ DeviceProcessEvents
 | where ProcessCommandLine has_all (CmdStrings)
 | project Timestamp, DeviceName, FileName, ProcessCommandLine,
           InitiatingProcessFileName, InitiatingProcessCommandLine
+```
+# Query – Headless Browser + Evelyn Workspace Correlation (30-minute window)
+```kql
+let window = 30m;
+let evelyn_activity =
+    DeviceFileEvents
+    | where Timestamp > ago(30d)
+    | where FolderPath has @"\AppData\"
+    | where FolderPath has @"\Evelyn"
+    | where ActionType in~ ("FolderCreated", "FileCreated")
+    | project DeviceId, EvelynTime=Timestamp, EvelynFile=FileName, EvelynPath=FolderPath;
+DeviceProcessEvents
+| where Timestamp > ago(30d)
+| where FileName in~ ("msedge.exe", "chrome.exe", "brave.exe")
+| where ProcessCommandLine has_all ("--headless=new", "--no-sandbox", "--window-position=-10000,-10000", "--window-size=1,1")
+| join kind=inner (evelyn_activity) on DeviceId
+| where Timestamp between (EvelynTime - window .. EvelynTime + window)
+| project EvelynTime, Timestamp, DeviceName, FileName, ProcessCommandLine, EvelynFile, EvelynPath, InitiatingProcessFileName, InitiatingProcessCommandLine
