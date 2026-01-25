@@ -30,8 +30,8 @@ This threat hunt detects **ZIP archives created and subsequently deleted** withi
 ```kql
 DeviceFileEvents
 | where Timestamp > ago(30d)
-| where FolderPath has "\\AppData\\"
-| where FolderPath has "\\Evelyn"
+| where FolderPath has @"\AppData\"
+| where FolderPath has @"\Evelyn"
 | where FileName endswith ".zip"
 | where ActionType in~ ("FileCreated", "FileDeleted")
 | project Timestamp, DeviceName, ActionType, FileName, FolderPath,
